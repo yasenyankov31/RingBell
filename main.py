@@ -20,8 +20,12 @@ def main():
         day=calendar.day_name[my_date.weekday()]
         if day!="Sunday" and day!="Saturday":
             now = datetime.datetime.now().strftime('%H:%M:%S')
+            print(now)
             if now in schedule:
                 os.system(command)
+                w=open("log.txt","a")
+                w.write(now+"\n"+str(my_date))
+                w.close()
                 sleep(2)
 
 
