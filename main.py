@@ -24,15 +24,21 @@ def get_all_songs():
 
 def main():
     schedule=[]
+    bigBreakschedule=[]
     command_bell="mplayer songs/bell.mp3"
     command_song="mplayer "
     all_songs=get_all_songs()
     prevhour=""
-    counter=0
+
+    
     #fill schedule list
     f = open("schedule.txt", "r")
     for time in f:
         schedule.append(time.replace("\n",''))
+    #fill big break schedule list
+    a = open("scheduleBigBreaks.txt", "r")
+    for time in a:
+        bigBreakschedule.append(time.replace("\n",''))
 
     while True:
         my_date = date.today()
@@ -41,11 +47,10 @@ def main():
             now = datetime.datetime.now().strftime('%H:%M')
             print(now)
             if now in schedule and now!=prevhour:
-                counter+=1
                 prevhour=now
                 subprocess.call(command_bell,shell=True)
                 sleep(5)
-                if counter==6:
+                if now in bigBreakschedule:
                     breakSongs={}
                     fullDuration=0
                     #add random songs in list
@@ -61,12 +66,10 @@ def main():
                     for song, duration in breakSongs.items():
                         task=mp.Process(target=play_song,args=(song,))
                         task.start()
-                        sleep(duration)
+                        sleep(int(duration))
                         subprocess.call('pkill mplayer', shell=True)
                         task.kill()
                         
-                elif counter==14:
-                    counter=0
                 #write log
                 w=open("log.txt","a")
                 w.write(now+" "+str(my_date)+"\n")
