@@ -16,7 +16,7 @@ def sleep(x):
         t.sleep(1)
 
 def play_song(command):
-    subprocess.call(command, shell=True)
+    subprocess.call("mplayer "+command, shell=True)
 
 def get_all_songs():
     songs = os.listdir("songs/") 
@@ -50,25 +50,25 @@ def main():
                 prevhour=now
                 subprocess.call(command_bell,shell=True)
                 sleep(5)
-                if now in bigBreakschedule:
-                    breakSongs={}
-                    fullDuration=0
-                    #add random songs in list
-                    while True:
-                        rng_song=command_song+random.choice(all_songs)
-                        duration = int(MP3(rng_song).info.length)
-                        if fullDuration+duration<=1200:
-                            duration=1200-fullDuration
-                            breakSongs[rng_song]=str(duration-20)
-                            break
-                        breakSongs[rng_song]=str(duration)
+            if now in bigBreakschedule:
+                breakSongs={}
+                fullDuration=0
+                #add random songs in list
+                while True:
+                    rng_song=command_song+random.choice(all_songs)
+                    duration = int(MP3(rng_song).info.length)
+                    if fullDuration+duration<=1200:
+                        duration=1200-fullDuration
+                        breakSongs[rng_song]=str(duration-20)
+                        break
+                    breakSongs[rng_song]=str(duration)
 
-                    for song, duration in breakSongs.items():
-                        task=mp.Process(target=play_song,args=(song,))
-                        task.start()
-                        sleep(int(duration))
-                        subprocess.call('pkill mplayer', shell=True)
-                        task.kill()
+                for song, duration in breakSongs.items():
+                    task=mp.Process(target=play_song,args=(song,))
+                    task.start()
+                    sleep(int(duration))
+                    subprocess.call('pkill mplayer', shell=True)
+                    task.kill()
                         
                 #write log
                 w=open("log.txt","a")
