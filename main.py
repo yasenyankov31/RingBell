@@ -16,7 +16,7 @@ def sleep(x):
         t.sleep(1)
 
 def play_song(command):
-    subprocess.call("mplayer "+command, shell=True)
+    subprocess.call("mplayer songs/"+command, shell=True)
 
 def get_all_songs():
     songs = os.listdir("songs/") 
@@ -25,8 +25,7 @@ def get_all_songs():
 def main():
     schedule=[]
     bigBreakschedule=[]
-    command_bell="mplayer songs/bell.mp3"
-    command_song="mplayer "
+    command_bell="mplayer breakBell/bell.mp3"
     all_songs=get_all_songs()
     prevhour=""
 
@@ -50,19 +49,24 @@ def main():
                 prevhour=now
                 subprocess.call(command_bell,shell=True)
                 sleep(5)
+                #write log
+                w=open("log.txt","a")
+                w.write(now+" "+str(my_date)+"\n")
+                w.close()
             if now in bigBreakschedule:
                 breakSongs={}
                 fullDuration=0
                 #add random songs in list
                 while True:
-                    rng_song=command_song+random.choice(all_songs)
-                    duration = int(MP3(rng_song).info.length)
-                    if fullDuration+duration<=1200:
+                    rng_song=random.choice(all_songs)
+                    duration = int(MP3("songs/"+rng_song).info.length)
+                    if fullDuration+duration>=1200:  
                         duration=1200-fullDuration
                         breakSongs[rng_song]=str(duration-20)
                         break
                     breakSongs[rng_song]=str(duration)
-
+                    fullDuration+=int(duration)
+                
                 for song, duration in breakSongs.items():
                     task=mp.Process(target=play_song,args=(song,))
                     task.start()
@@ -70,10 +74,6 @@ def main():
                     subprocess.call('pkill mplayer', shell=True)
                     task.kill()
                         
-                #write log
-                w=open("log.txt","a")
-                w.write(now+" "+str(my_date)+"\n")
-                w.close()
         sleep(10)
 
 
