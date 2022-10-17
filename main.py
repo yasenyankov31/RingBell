@@ -59,14 +59,15 @@ def main():
                 #add random songs in list
                 while True:
                     rng_song=random.choice(all_songs)
-                    duration = int(MP3("songs/"+rng_song).info.length)
-                    if fullDuration+duration>=1200:  
-                        duration=1200-fullDuration
-                        breakSongs[rng_song]=str(duration-20)
-                        break
-                    breakSongs[rng_song]=str(duration)
-                    fullDuration+=int(duration)
-                
+                    if rng_song not in breakSongs:
+                        duration = int(MP3("songs/"+rng_song).info.length)
+                        if fullDuration+duration>=1200:  
+                            duration=1200-fullDuration
+                            breakSongs[rng_song]=str(duration-20)
+                            break
+                        breakSongs[rng_song]=str(duration)
+                        fullDuration+=int(duration)
+                print(breakSongs)
                 for song, duration in breakSongs.items():
                     task=mp.Process(target=play_song,args=(song,))
                     task.start()
