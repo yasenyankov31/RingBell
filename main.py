@@ -59,6 +59,7 @@ def main():
                 #add random songs in list
                 while True:
                     rng_song=random.choice(all_songs)
+                    print(rng_song)
                     if rng_song not in breakSongs:
                         duration = int(MP3("songs/"+rng_song).info.length)
                         if fullDuration+duration>=1200:  
