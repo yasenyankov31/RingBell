@@ -40,43 +40,48 @@ def main():
         bigBreakschedule.append(time.replace("\n",''))
 
     while True:
-        my_date = date.today()
-        day=calendar.day_name[my_date.weekday()]
-        if day!="Sunday" and day!="Saturday":
-            now = datetime.datetime.now().strftime('%H:%M')
-            print(now)
-            if now in schedule and now!=prevhour:
-                prevhour=now
-                subprocess.call(command_bell,shell=True)
-                sleep(5)
-                #write log
-                w=open("log.txt","a")
-                w.write(now+" "+str(my_date)+"\n")
-                w.close()
-            if now in bigBreakschedule:
-                breakSongs={}
-                fullDuration=0
-                #add random songs in list
-                while True:
-                    rng_song=random.choice(all_songs)
-                    print(rng_song)
-                    if rng_song not in breakSongs:
-                        duration = int(MP3("songs/"+rng_song).info.length)
-                        if fullDuration+duration>=1200:  
-                            duration=1200-fullDuration
-                            breakSongs[rng_song]=str(duration-20)
-                            break
-                        breakSongs[rng_song]=str(duration)
-                        fullDuration+=int(duration)
-                print(breakSongs)
-                for song, duration in breakSongs.items():
-                    task=mp.Process(target=play_song,args=(song,))
-                    task.start()
-                    sleep(int(duration))
-                    subprocess.call('pkill mplayer', shell=True)
-                    task.kill()
-                        
-        sleep(10)
+        try:
+            my_date = date.today()
+            day=calendar.day_name[my_date.weekday()]
+            if day!="Sunday" and day!="Saturday":
+                now = datetime.datetime.now().strftime('%H:%M')
+                print(now)
+                if now in schedule and now!=prevhour:
+                    prevhour=now
+                    subprocess.call(command_bell,shell=True)
+                    sleep(5)
+                    #write log
+                    w=open("log.txt","a")
+                    w.write(now+" "+str(my_date)+"\n")
+                    w.close()
+                if now in bigBreakschedule:
+                    breakSongs={}
+                    fullDuration=0
+                    #add random songs in list
+                    while True:
+                        rng_song=random.choice(all_songs)
+                        if rng_song not in breakSongs:
+                            duration = int(MP3("songs/"+rng_song).info.length)
+                            if fullDuration+duration>=1200:  
+                                duration=1200-fullDuration
+                                breakSongs[rng_song]=str(duration-20)
+                                break
+                            breakSongs[rng_song]=str(duration)
+                            fullDuration+=int(duration)
+                    for song, duration in breakSongs.items():
+                        task=mp.Process(target=play_song,args=(song,))
+                        task.start()
+                        sleep(int(duration))
+                        subprocess.call('pkill mplayer', shell=True)
+                        task.kill()
+                            
+            sleep(10)
+        except Exception as error:
+            #write log
+            w=open("error_log.txt","a")
+            w.write(now+" "+str(my_date)+"\n")
+            w.write("The error was "+error)
+            w.close()
 
 
 
